@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropzone Demo</title>
+    <!-- Include Dropzone CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/dropzone.css">
+</head>
+
+<body>
+    <!-- Buttons Before Dropzone -->
+    <button class="postButton">Upload Files</button>
+    <button class="resetButton">Clear Files</button>
+
+    <!-- Add additional fields for folder ID and expiration date -->
+    <label for="folderId">Folder : </label>
+    <!-- <input type="text" id="folderId" name="folderId" value="606"> Set default value to 606 -->
+    <select id="folderId" name="folderId">
+        {{options}}
+    </select>
+    <label for="expirationDate">Expiration Date : </label>
+    <input type="date" id="expirationDate" name="expirationDate">
+
+    <form action="/app/site/hosting/scriptlet.nl?script=425&deploy=1" class="dropzone" id="my-dropzone"></form>
+
+    <!-- Buttons After Dropzone -->
+    <button class="postButton">Upload Files</button>
+    <button class="resetButton">Clear Files</button>
+
+    <!-- Include Dropzone JS -->
+    <script src="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/dropzone.js"></script>
+
+    <script>
+        // Function to handle file upload
+        function handleFileUpload() {
+            var myDropzone = Dropzone.forElement("#my-dropzone");
+
+            // Get additional field values
+            var folderId = document.getElementById('folderId').value || "606"; // Default value 606 if empty
+            var expirationDate = document.getElementById('expirationDate').value;
+
+            // Pass data to the Suitelet
+            var suiteletUrl = `/app/site/hosting/scriptlet.nl?script=425&deploy=1&folderId=${folderId}&expirationDate=${expirationDate}`;
+            myDropzone.options.url = suiteletUrl;
+
+            // Process all files immediately
+            myDropzone.processQueue();
+        }
+
+        // Function to handle clearing files
+        function clearFiles() {
+            var myDropzone = Dropzone.forElement("#my-dropzone");
+            // Remove all files from the Dropzone
+            myDropzone.removeAllFiles();
+        }
+
+        // Event handler for "Upload Files" button click
+        function handleUploadButtonClick() {
+            // Trigger the file upload function
+            handleFileUpload();
+        }
+
+        // Event handler for file upload completion
+        function handleFileUploadComplete(file) {
+            // Custom logic after each file upload completes
+            var myDropzone = Dropzone.forElement("#my-dropzone");
+            myDropzone.removeFile(file);
+        }
+
+        // Event handlers for buttons
+        document.querySelectorAll('.postButton').forEach(function (button) {
+            button.addEventListener('click', handleUploadButtonClick);
+        });
+
+        document.querySelectorAll('.resetButton').forEach(function (button) {
+            button.addEventListener('click', clearFiles);
+        });
+
+        // Initialize Dropzone
+        Dropzone.options.myDropzone = {
+            paramName: "file",
+            maxFilesize: 10, // Maximum file size in MB
+            addRemoveLinks: true,
+            parallelUploads: 99, // Adjust the number of parallel uploads
+            autoProcessQueue: false, // Do not automatically process the queue
+            dictDefaultMessage: "Drop files here or click to upload (max size 10MB per 1 file, max files 99)",
+            init: function () {
+                this.on("complete", handleFileUploadComplete);
+            }
+        };
+    </script>
+</body>
+
+</html>
